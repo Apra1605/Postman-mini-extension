@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      width: 500px;
+      min-height: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a2744 0%, #0f1929 100%);
+      color: #e0e0e0;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Main Menu */
+    #mainMenu {
+      padding: 24px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+    }
+    #mainMenu h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 32px;
+      letter-spacing: -0.5px;
+    }
+    #mainMenu button {
+      width: 100%;
+      padding: 14px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      margin-bottom: 12px;
+    }
+    #mainMenu button:hover {
+      background-color: #1d4ed8;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* Postman UI */
+    #postmanUI {
+      display: block;
+      padding: 16px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    #postmanUI.active {
+      display: block;
+    }
+    
+    /* DOM Inspector UI */
+    #domInspectorUI {
+      display: none;
+      padding: 16px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    #domInspectorUI.active {
+      display: block;
+    }
+
+    .inspect-btn, .search-btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #8b5cf6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      margin-top: 6px;
+    }
+    .inspect-btn:hover, .search-btn:hover {
+      background-color: #7c3aed;
+    }
+    .inspect-btn.active {
+      background-color: #ec4899;
+    }
+
+    .element-info-section, .elements-list-section {
+      border-top: 1px solid #404f63;
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .element-info-section h3, .elements-list-section h3 {
+      font-size: 14px;
+      color: #a0a0a0;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .info-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #404f63;
+      margin-bottom: 8px;
+    }
+    .info-tab-btn {
+      background: none;
+      border: none;
+      color: #7a8aa6;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+    .info-tab-btn.active {
+      color: #8b5cf6;
+      border-bottom-color: #8b5cf6;
+    }
+    .info-tab-btn:hover {
+      color: #a0a0a0;
+    }
+    .info-tab-content {
+      display: none;
+    }
+    .info-tab-content.active {
+      display: block;
+    }
+    .info-display {
+      background-color: #1a2540;
+      border: 1px solid #404f63;
+      padding: 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #a0d469;
+    }
+    .elements-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .element-item {
+      background-color: #2d3e5f;
+      padding: 8px;
+      margin-bottom: 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      border-left: 3px solid #2563eb;
+      transition: all 0.3s;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      color: #a0d469;
+    }
+    .element-item:hover {
+      background-color: #354565;
+      border-left-color: #8b5cf6;
+    }
+    
+    .postman-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 8px;
+    }
+    .back-btn {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background-color 0.3s;
+    }
+    .back-btn:hover {
+      background-color: #1d4ed8;
+    }
+    .postman-header h2 {
+      font-size: 20px;
+      color: #ffffff;
+      flex: 1;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      color: #a0a0a0;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .method-url-group {
+      display: flex;
+      gap: 8px;
+    }
+    select {
+      background-color: #2d3e5f;
+      color: #e0e0e0;
+      border: 1px solid #404f63;
+      padding: 8px;
+      border-radius: 4px;
+      min-width: 100px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+    input[type="text"], input[type="url"], textarea {
+      width: 100%;
+      background-color: #2d3e5f;
+      color: #e0e0e0;
+      border: 1px solid #404f63;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, input[type="url"]:focus, textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 6px rgba(37, 99, 235, 0.3);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      font-family: 'Courier New', monospace;
+    }
+    .button-group {
+      display: flex;
+      gap: 8px;
+    }
+    .send-btn {
+      flex: 1;
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    .send-btn:hover {
+      background-color: #059669;
+    }
+    .send-btn:disabled {
+      background-color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    /* Response */
+    .response-section {
+      margin-top: 16px;
+      border-top: 1px solid #404f63;
+      padding-top: 16px;
+    }
+    .response-section h3 {
+      font-size: 14px;
+      color: #a0a0a0;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .response-status {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-badge.success {
+      background-color: #10b981;
+      color: white;
+    }
+    .status-badge.error {
+      background-color: #ef4444;
+      color: white;
+    }
+    .status-time {
+      font-size: 12px;
+      color: #a0a0a0;
+    }
+    .response-body {
+      background-color: #1a2540;
+      border: 1px solid #404f63;
+      padding: 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #a0d469;
+    }
+    .response-headers {
+      background-color: #1a2540;
+      border: 1px solid #404f63;
+      padding: 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 150px;
+      overflow-y: auto;
+      color: #a0d469;
+    }
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #404f63;
+      margin-bottom: 8px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #7a8aa6;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+    }
+    .tab-btn.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+    .tab-btn:hover {
+      color: #a0a0a0;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Loading */
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #404f63;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Postman UI -->
+  <div id="postmanUI">
+    <div class="postman-header">
+      <h2>API Tester</h2>
+    </div>
+
+    <div class="form-group">
+      <label>Request Method & URL</label>
+      <div class="method-url-group">
+        <select id="methodSelect">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>PATCH</option>
+          <option>DELETE</option>
+          <option>HEAD</option>
+          <option>OPTIONS</option>
+        </select>
+        <input type="url" id="urlInput" placeholder="https://api.example.com/endpoint">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Headers (JSON)</label>
+      <textarea id="headersInput" placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Body (JSON)</label>
+      <textarea id="bodyInput" placeholder='{"key": "value"}'></textarea>
+    </div>
+
+    <div class="button-group">
+      <button class="send-btn" id="sendBtn">Send Request</button>
+    </div>
+
+    <!-- Response Section -->
+    <div id="responseSection" class="response-section" style="display: none;">
+      <h3>Response</h3>
+      <div class="response-status">
+        <span id="statusCode" class="status-badge"></span>
+        <span id="responseTime" class="status-time"></span>
+      </div>
+      
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="body-tab">Body</button>
+        <button class="tab-btn" data-tab="headers-tab">Headers</button>
+      </div>
+
+      <div id="body-tab" class="tab-content active">
+        <div id="responseBody" class="response-body"></div>
+      </div>
+
+      <div id="headers-tab" class="tab-content">
+        <div id="responseHeaders" class="response-headers"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
