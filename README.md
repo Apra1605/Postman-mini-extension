@@ -10,3 +10,5 @@ Postman Mini is a lightweight API testing tool integrated into your browser for 
 There are boxes for the heading and body, and once the request is sent, you are provided with the result as well as the latency of the process.
 
 If you want any further requests, please just ask! We will try our best to adhere to your requests and make your user experience as smooth as possible!
+
+<h1><b>STEPS TO INSTALL ON ANY CHROMIUM BASED BROWSER</b></h1>
